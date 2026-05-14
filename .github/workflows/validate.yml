@@ -1,0 +1,71 @@
+name: validate
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-sql:
+    name: Lint SQL (sqlfluff, postgres dialect)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install sqlfluff
+        run: pip install "sqlfluff>=3,<4"
+
+      - name: Lint
+        run: sqlfluff lint sql/
+
+  apply-schema:
+    name: Apply schema and seeds against Postgres 17
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: tpo
+          POSTGRES_PASSWORD: tpo
+          POSTGRES_DB: tpo_facturacion
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Apply SQL files in order
+        env:
+          PGPASSWORD: tpo
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: tpo
+          PGDATABASE: tpo_facturacion
+        run: |
+          shopt -s nullglob
+          for f in sql/*.sql; do
+            echo "::group::Applying $f"
+            psql -v ON_ERROR_STOP=1 -f "$f"
+            echo "::endgroup::"
+          done
