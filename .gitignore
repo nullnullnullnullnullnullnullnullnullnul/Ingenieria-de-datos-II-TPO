@@ -1,0 +1,41 @@
+# Markdown
+*.md
+!README.md
+!**/README.md
+!.github/PULL_REQUEST_TEMPLATE.md
+!docs/**/*.md
+
+# Secrets / environment
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Logs
+*.log
+logs/
+
+# Dumps
+*.sql.gz
+*.dump
+*.bak
+data/raw/
+data/local/
+
+# Temp
+*.tmp
+*.temp
