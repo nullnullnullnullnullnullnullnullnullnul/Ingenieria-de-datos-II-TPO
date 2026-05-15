@@ -12,6 +12,8 @@
 //   mongosh "mongodb://localhost:27017/tpo_facturacion" --file 02-seed.js
 // =====================================================================
 
+db = db.getSiblingDB("tpo_facturacion");
+
 // === Clean previous data (preserves collection + validator + indexes) ===
 db.cliente.deleteMany({});
 

@@ -12,6 +12,8 @@
 //   mongosh "mongodb://localhost:27017/tpo_facturacion" --file 01-setup.js
 // =====================================================================
 
+db = db.getSiblingDB("tpo_facturacion");
+
 // === Clean previous state ===
 db.cliente.drop();
 

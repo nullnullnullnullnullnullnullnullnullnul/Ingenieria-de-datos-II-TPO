@@ -4,13 +4,25 @@
 // Cross-DB query. The PostgreSQL side returns the DISTINCT set of
 // nro_cliente that appear in factura (see sql/queries/req-04.sql). The
 // MongoDB side takes that list and enriches each id with nombre and
-// apellido. The hardcoded array below is the actual output that
-// sql/queries/req-04.sql produces against the SQL seed in this repo
-// (98 distinct nro_cliente, missing 58 and 62 which have no facturas).
+// apellido.
+//
+// STANDALONE vs PRODUCTION:
+//   - Standalone (this file run via mongosh): the array of nro_cliente
+//     below is hardcoded with the actual output that sql/queries/req-04.sql
+//     produces against the current SQL seed in this repo (98 distinct
+//     nro_cliente, missing 58 and 62 which have no facturas). This keeps
+//     the file reproducible without needing a live Postgres connection.
+//   - Production (future API in api/): the equivalent endpoint runs
+//     sql/queries/req-04.sql at request time against PostgreSQL, gets the
+//     live nro_cliente list, and passes it to this Mongo enrichment step.
+//     The hardcoded array is replaced by the real-time SQL output. The
+//     Mongo find() below stays unchanged.
 //
 // Run with:
 //   mongosh "mongodb://localhost:27017/tpo_facturacion" --file queries/req-04.js
 // =====================================================================
+
+db = db.getSiblingDB("tpo_facturacion");
 
 print("=== Requirement 4: Clientes con al menos una factura ===");
 

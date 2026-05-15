@@ -4,14 +4,26 @@
 // Cross-DB query. The PostgreSQL side returns (nro_cliente, COUNT(*)) for
 // each cliente that has at least one factura (see sql/queries/req-06.sql).
 // The MongoDB side merges that with the full cliente set, defaulting
-// cantidad to 0 for clientes absent from the SQL result. The hardcoded
-// array below is the actual output that sql/queries/req-06.sql produces
-// against the SQL seed in this repo (98 rows; clientes 58 and 62 have no
-// facturas so they appear with cantidad=0 in the final output).
+// cantidad to 0 for clientes absent from the SQL result.
+//
+// STANDALONE vs PRODUCTION:
+//   - Standalone (this file run via mongosh): the array of (nro_cliente,
+//     cantidad) pairs below is hardcoded with the actual output that
+//     sql/queries/req-06.sql produces against the current SQL seed in this
+//     repo (98 rows; clientes 58 and 62 are absent from SQL and thus
+//     appear with cantidad=0 in the final output). This keeps the file
+//     reproducible without needing a live Postgres connection.
+//   - Production (future API in api/): the equivalent endpoint runs
+//     sql/queries/req-06.sql at request time against PostgreSQL, gets the
+//     live (nro_cliente, cantidad) pairs, and passes them to this Mongo
+//     enrichment step. The hardcoded array is replaced by the real-time
+//     SQL output. The Mongo iteration below stays unchanged.
 //
 // Run with:
 //   mongosh "mongodb://localhost:27017/tpo_facturacion" --file queries/req-06.js
 // =====================================================================
+
+db = db.getSiblingDB("tpo_facturacion");
 
 print("=== Requirement 6: Clientes con cantidad de facturas ===");
 

@@ -9,6 +9,8 @@
 //   mongosh "mongodb://localhost:27017/tpo_facturacion" --file queries/req-02.js
 // =====================================================================
 
+db = db.getSiblingDB("tpo_facturacion");
+
 print("=== Requirement 2: Telefonos y nro de Jacob Cooper ===");
 
 const result = db.cliente.findOne(
