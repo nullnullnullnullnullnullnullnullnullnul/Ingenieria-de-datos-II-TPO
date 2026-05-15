@@ -1,0 +1,4 @@
+# Seeds and large data files are skipped from linting.
+# Their correctness is validated by the apply-schema CI job that actually
+# executes them against Postgres.
+sql/*seed*.sql
