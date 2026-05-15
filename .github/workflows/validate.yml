@@ -68,3 +68,34 @@ jobs:
             psql -v ON_ERROR_STOP=1 -f "$f"
             echo "::endgroup::"
           done
+
+  apply-mongo-setup:
+    name: Apply setup and seeds against MongoDB 8
+    runs-on: ubuntu-24.04
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 15s
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mongosh
+        run: sudo npm install -g mongosh
+
+      - name: Apply Mongo files in order
+        env:
+          MONGO_URI: "mongodb://localhost:27017/tpo_facturacion"
+        run: |
+          shopt -s nullglob
+          for f in nosql/*.js; do
+            echo "::group::Applying $f"
+            mongosh "$MONGO_URI" --quiet --file "$f"
+            echo "::endgroup::"
+          done

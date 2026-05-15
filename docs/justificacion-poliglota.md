@@ -42,7 +42,7 @@ PostgreSQL sobre MySQL: mayor adherencia al estándar SQL, mejor soporte de CTEs
 El cliente, junto con sus teléfonos, forma un **agregado descriptivo** que casi nunca está en operaciones transaccionales:
 
 - **1:N de baja cardinalidad, siempre consultado junto**: los teléfonos de un cliente se piden con el cliente. Anidar el array de teléfonos dentro del documento del cliente es el patrón canónico de modelado documental ("always fetched together", Fowler 2012).
-- **Esquema variable**: distintos tipos de teléfono (celular, fijo, internacional) pueden requerir campos extra (extensión, prefijo de país, observaciones) sin migrar el schema.
+- **Esquema variable**: distintos tipos de teléfono (móvil, fijo, internacional) pueden requerir campos extra (extensión, prefijo de país, observaciones) sin migrar el schema.
 - **Sin participación en transacciones de stock/facturación**: agregar, eliminar o modificar un teléfono no afecta facturas, stock ni totales. No requiere ACID.
 - **Patrón de consulta natural**: "dame todos los teléfonos del cliente X" es un único `findOne({ nro_cliente: X })` con índice, más eficiente que el `JOIN` cliente<->telefono que requeriría SQL.
 
