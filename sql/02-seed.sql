@@ -6,6 +6,7 @@
 -- IMPORTANTE: Los nro_cliente deben coincidir con los de MongoDB.
 -- =====================================================================
 
+
 -- ==========================================
 -- Datos para PRODUCTO
 -- ==========================================
@@ -33,7 +34,7 @@ INSERT INTO PRODUCTO (codigo_producto, marca, nombre, descripcion, precio, stock
 ('21', 'Arcu Vestibulum Ut Consulting', 'household goods', 'Quisque purus sapien,', '342.01', '314'),
 ('22', 'Eu Accumsan Sed Consulting', 'barcode', 'magnis dis parturient', '667.36', '315'),
 ('23', 'Quam Industries', 'groceries', 'tellus eu augue', '460.0', '115'),
-('24', 'Enim Associates', NULL, 'eu elit. Nulla', '835.86', '405'),
+('24', 'Enim Associates', '', 'eu elit. Nulla', '835.86', '405'),
 ('25', 'Dis Parturient Montes Consulting', 'bag', 'Curabitur dictum. Phasellus', '67.85', '339'),
 ('26', 'Lectus Corporation', ' drugstore ', 'risus, at fringilla', '838.23', '73'),
 ('27', 'Nec Tempus Foundation', 'credit card', 'euismod mauris eu', '391.91', '517'),
