@@ -13,7 +13,7 @@ Documento donde se argumenta la elección y distribución de motores para el TPO
 | Entidad / Datos             | Motor      | Justificación                                                                                                                                |
 | --------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `producto`                  | PostgreSQL | El stock se decrementa atómicamente al facturar. Necesita ACID y constraints (precio > 0, stock ≥ 0).                                        |
-| `factura`                   | PostgreSQL | Cabecera contable: totales con/sin IVA, fecha. Su emisión es transaccional: insertar cabecera + detalle + decrementar stock en un solo paso. |
+| `factura`                   | PostgreSQL | Cabecera contable: `total_sin_iva`, `iva` (tasa en porcentaje, ej. `21`), `total_con_iva`, fecha. Su emisión es transaccional: insertar cabecera + detalle + decrementar stock en un solo paso. |
 | `detalle_factura`           | PostgreSQL | Líneas de factura. Relación N:N entre factura y producto, modelo relacional natural con FKs.                                                 |
 | `cliente` (con `telefonos`) | MongoDB    | Documento por cliente con sus teléfonos anidados como array. 1:N de baja cardinalidad, siempre consultados juntos, no transaccional.         |
 
@@ -50,7 +50,7 @@ Frente a la alternativa de almacenar `telefono` como una colección separada con
 ## Trade-offs aceptados
 
 - **Consultas cross-motor** (requerimientos 4, 5, 6, 7, 10): se resuelven en la capa de aplicación. SQL devuelve `nro_cliente`s (con agregados según el caso) y MongoDB agrega `nombre`, `apellido`, `direccion`. El costo es bajo porque las consultas son puntuales y `nro_cliente` está indexado en ambos motores. Es el patrón políglota: un agregado por motor, joins lógicos en la app.
-- **Consistencia eventual entre motores**: si se elimina un cliente en MongoDB, sus facturas en PostgreSQL quedan referenciando un `nro_cliente` inexistente hasta que el proceso de borrado lógico (CRUD requerimiento 13) las marque o limpie. Se mitiga con una operación coordinada desde la aplicación: nunca borrar físicamente un cliente con facturas asociadas, sino marcarlo como `activo = false` en MongoDB.
+- **Consistencia cross-motor por pre-check**: el `nro_cliente` que `factura` referencia en SQL no es FK relacional. Para evitar referencias huérfanas, el CRUD de clientes (req 13) implementa **pre-check de integridad**: antes del `deleteOne` en MongoDB, la app consulta `SELECT COUNT(*) FROM factura WHERE nro_cliente = :id` en PostgreSQL. Si el cliente tiene facturas asociadas, la operación se rechaza. Solo se elimina físicamente del documento si el count es `0`.
 - **Operación dual**: levantar y mantener dos motores en lugar de uno. Compensado por la separación de responsabilidades, la mejor adecuación de cada motor a su carga, y el aprendizaje pedagógico (que es el objetivo del TP).
 - **No hay duplicación de `cliente`**: el modelo evita replicar `cliente` en ambas BDs. La única referencia es `nro_cliente`. Esto preserva la **fuente única de verdad** para los datos descriptivos del cliente.
 
@@ -71,7 +71,5 @@ Frente a la alternativa de almacenar `telefono` como una colección separada con
 | 10  | Total gastado por cliente con IVA       | PostgreSQL + MongoDB | SQL agrupa `SUM(total_con_iva)` por `nro_cliente`; Mongo agrega `nombre`, `apellido` |
 | 11  | Vista de facturas ordenadas por fecha   | PostgreSQL           | `CREATE VIEW` sobre `factura`                                                        |
 | 12  | Vista de productos no facturados        | PostgreSQL           | `LEFT JOIN` / `NOT EXISTS`                                                           |
-| 13  | CRUD de clientes                        | MongoDB              | Cliente vive solo en MongoDB; baja lógica si tiene facturas en SQL                   |
+| 13  | CRUD de clientes                        | MongoDB              | Cliente vive solo en MongoDB; pre-check en SQL antes de eliminar (rechaza si tiene facturas) |
 | 14  | CRUD de productos                       | PostgreSQL           | Precio sin IVA, validación de stock ≥ 0                                              |
-
-
