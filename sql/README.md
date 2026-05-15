@@ -79,7 +79,7 @@ Todos los scripts son **idempotentes**: se pueden re-ejecutar sin error.
 
 | Archivo                               | Descripción                                                                | Estado |
 | ------------------------------------- | -------------------------------------------------------------------------- | ------ |
-| `01-schema.sql`                       | DDL: tablas `producto`, `factura`, `detalle_factura`, FKs, checks, índices | DONE   |
+| `01-schema.sql`                       | DDL: tablas `producto`, `factura`, `detalle_factura`, FKs, checks, índices. `factura.total_con_iva` es columna generada (ver comentario en el archivo y en `docs/justificacion-poliglota.md`) | DONE   |
 | `02-seed.sql`                         | Datos de prueba (productos, facturas, detalles)                            | DONE   |
 | `03-view-facturas-fecha.sql`          | Vista del requerimiento 11 (facturas ordenadas por fecha)                  | DONE   |
 | `04-view-productos-no-facturados.sql` | Vista del requerimiento 12 (productos no facturados)                       | TODO   |
