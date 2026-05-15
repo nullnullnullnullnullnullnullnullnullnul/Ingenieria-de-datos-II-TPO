@@ -17,8 +17,8 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
   "direccion": "Av. Siempreviva 742",
   "activo": 1,
   "telefonos": [
-    { "codigo_area": 11, "nro_telefono": 4567890, "tipo": "C" },
-    { "codigo_area": 11, "nro_telefono": 1234567, "tipo": "F" }
+    { "codigo_area": 178, "nro_telefono": 4758526, "tipo": "M" },
+    { "codigo_area": 323, "nro_telefono": 4481471, "tipo": "F" }
   ]
 }
 ```
@@ -43,7 +43,7 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
 | -------------- | --------------- | -------- | ------------------------------------ |
 | `codigo_area`  | INT             | Sí       | Código de área (1 a 3 dígitos)       |
 | `nro_telefono` | INT             | Sí       | Número de teléfono (hasta 7 dígitos) |
-| `tipo`         | STRING (1 char) | Sí       | `'C'` celular, `'F'` fijo            |
+| `tipo`         | STRING (1 char) | Sí       | `'F'` fijo, `'M'` móvil              |
 
 
 ## Índices
@@ -55,29 +55,46 @@ La colección `cliente` necesita los siguientes índices:
 | --------------------- | ------------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `uq_nro_cliente`      | `{ nro_cliente: 1 }`                                          | Sí            | Clave de búsqueda principal. La app accede al cliente por `nro_cliente` cuando agrega `nombre`, `apellido` a resultados de SQL (reqs 4, 5, 6, 7, 10) o cuando hace CRUD (req 13). |
 | `idx_nombre_apellido` | `{ nombre: 1, apellido: 1 }`                                  | No            | Búsqueda por nombre completo: req 2 ("Jacob Cooper") y req 7 ("Kai Bullock"). Sin este índice, esas queries hacen full collection scan.                         |
-| `uq_telefono`         | `{ "telefonos.codigo_area": 1, "telefonos.nro_telefono": 1 }` | Sí (multikey) | Replica la PK compuesta de `E01_TELEFONO` en el DER. Previene que el mismo número (par `codigo_area`+`nro_telefono`) esté registrado en dos clientes distintos. |
+| `uq_telefono`         | `{ "telefonos.codigo_area": 1, "telefonos.nro_telefono": 1 }` | Sí (multikey, parcial) | Replica la PK compuesta de `E01_TELEFONO` en el DER. Previene que el mismo número (par `codigo_area`+`nro_telefono`) esté registrado en dos clientes distintos. Usa `partialFilterExpression: { "telefonos.0": { $exists: true } }` para excluir del índice a los clientes con `telefonos: []`; sin el filtro parcial, dos clientes sin teléfonos colisionarían en la clave `(null, null)` del multikey y `unique: true` rechazaría el segundo insert. |
 
 
 ## Cómo levantar MongoDB local
 
-> **Nota**: actualmente Mongo se levanta con `docker run` standalone. Cuando arranque la fase Mongo del proyecto, el servicio se moverá a `docker-compose.yml` (junto con Postgres) y este README se actualizará para usar `docker compose up -d mongo`.
+### Docker Compose
 
-### Docker
-
-```bash
-docker run -d \
-  --name tpo-mongo \
-  -p 27017:27017 \
-  mongo:8
-```
-
-Para entrar al cliente:
+Desde la raíz del repo, con `.env` ya copiado de `.env.example`:
 
 ```bash
-docker exec -it tpo-mongo mongosh "mongodb://localhost:27017/tpo_facturacion"
+docker compose up -d mongo
 ```
 
-### MongoDB Atlas
+El `docker-compose.yml` lee la configuración de `.env` (campos `MONGO_DATABASE`, `MONGO_PORT`). MongoDB local no requiere autenticación.
+
+Para entrar al cliente desde el host (requiere `mongosh` instalado):
+
+```bash
+mongosh "mongodb://localhost:27017/tpo_facturacion"
+```
+
+O desde adentro del contenedor (sin `mongosh` en el host):
+
+```bash
+docker compose exec mongo mongosh "mongodb://localhost:27017/tpo_facturacion"
+```
+
+Para apagar el servicio (mantiene los datos):
+
+```bash
+docker compose down
+```
+
+Para apagar y resetear (borra el volumen):
+
+```bash
+docker compose down -v
+```
+
+### MongoDB Atlas (alternativa cloud)
 
 1. Crear cluster M0 gratuito en [https://cloud.mongodb.com](https://cloud.mongodb.com).
 2. Obtener connection string del cluster.

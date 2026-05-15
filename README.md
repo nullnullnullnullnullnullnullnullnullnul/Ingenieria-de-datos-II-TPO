@@ -76,16 +76,10 @@ Copiar el template de variables de entorno:
 cp .env.example .env
 ```
 
-Levantar PostgreSQL con Docker Compose:
+Levantar el stack con Docker Compose:
 
 ```bash
-docker compose up -d postgres
-```
-
-Levantar MongoDB (todavía standalone, va a migrar a `docker-compose.yml` en su fase):
-
-```bash
-docker run -d --name tpo-mongo -p 27017:27017 mongo:8
+docker compose up -d
 ```
 
 Detalle por motor: [sql/README.md](sql/README.md) y [nosql/README.md](nosql/README.md).
