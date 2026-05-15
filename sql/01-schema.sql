@@ -59,8 +59,7 @@ CREATE TABLE factura (
     fecha DATE NOT NULL,
     total_sin_iva DOUBLE PRECISION NOT NULL CHECK (total_sin_iva >= 0),
     iva DOUBLE PRECISION NOT NULL CHECK (iva >= 0),
-    total_con_iva DOUBLE PRECISION
-        GENERATED ALWAYS AS (total_sin_iva * (1 + iva / 100.0)) STORED,
+    total_con_iva DOUBLE PRECISION GENERATED ALWAYS AS (total_sin_iva * (1 + iva / 100.0)) STORED,
     nro_cliente INTEGER NOT NULL -- Link lógico a MongoDB (sin FK)
 );
 
