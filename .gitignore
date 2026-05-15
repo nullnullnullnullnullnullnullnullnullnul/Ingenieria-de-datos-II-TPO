@@ -39,3 +39,6 @@ data/local/
 # Temp
 *.tmp
 *.temp
+
+# Personal files (never to be committed)
+TRABAJO_PRACTICO_OBLIGATORIO_2026.pdf
