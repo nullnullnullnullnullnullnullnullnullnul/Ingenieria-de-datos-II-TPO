@@ -38,20 +38,20 @@ CREATE TABLE factura (
     nro_cliente INTEGER NOT NULL -- Link lógico a MongoDB (sin FK)
 );
 
-CREATE INDEX idx_factura_cliente ON factura(nro_cliente);
-CREATE INDEX idx_factura_fecha ON factura(fecha);
+CREATE INDEX idx_factura_cliente ON factura (nro_cliente);
+CREATE INDEX idx_factura_fecha ON factura (fecha);
 
 -- =====================================================================
 -- DETALLE_FACTURA
 -- =====================================================================
 CREATE TABLE detalle_factura (
-    nro_factura INTEGER NOT NULL REFERENCES factura(nro_factura) ON DELETE CASCADE,
+    nro_factura INTEGER NOT NULL REFERENCES factura (nro_factura) ON DELETE CASCADE,
     nro_item INTEGER NOT NULL,
     cantidad REAL NOT NULL CHECK (cantidad > 0),
-    codigo_producto INTEGER NOT NULL REFERENCES producto(codigo_producto),
+    codigo_producto INTEGER NOT NULL REFERENCES producto (codigo_producto),
     PRIMARY KEY (nro_factura, nro_item)
 );
 
-CREATE INDEX idx_detalle_producto ON detalle_factura(codigo_producto);
+CREATE INDEX idx_detalle_producto ON detalle_factura (codigo_producto);
 
 COMMIT;
