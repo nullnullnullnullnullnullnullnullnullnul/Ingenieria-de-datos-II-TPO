@@ -81,7 +81,7 @@ Todos los scripts son **idempotentes**: se pueden re-ejecutar sin error.
 | ------------------------------------- | -------------------------------------------------------------------------- | ------ |
 | `01-schema.sql`                       | DDL: tablas `producto`, `factura`, `detalle_factura`, FKs, checks, índices | DONE   |
 | `02-seed.sql`                         | Datos de prueba (productos, facturas, detalles)                            | DONE   |
-| `03-view-facturas-fecha.sql`          | Vista del requerimiento 11 (facturas ordenadas por fecha)                  | TODO   |
+| `03-view-facturas-fecha.sql`          | Vista del requerimiento 11 (facturas ordenadas por fecha)                  | DONE   |
 | `04-view-productos-no-facturados.sql` | Vista del requerimiento 12 (productos no facturados)                       | TODO   |
 | `05-crud-producto.sql`                | CRUD de productos (requerimiento 14)                                       | TODO   |
 | `queries/`                            | Una query por requerimiento (ver mapeo abajo)                              | TODO   |
