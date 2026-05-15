@@ -141,4 +141,4 @@ La capa de aplicación se responsabiliza de:
 - Asignar `nro_cliente` único al crear un cliente (alineado con lo que PostgreSQL espera en `factura.nro_cliente`).
 - No eliminar físicamente un cliente que tiene facturas asociadas en PostgreSQL: marcarlo como `activo: false` (baja lógica). Implementado en `03-crud-cliente.js` (requerimiento 13).
 
-Es un **trade-off conocido del modelo políglota** y está discutido en [../docs/justificacion-persistencia.md](../docs/justificacion-persistencia.md).
+Es un **trade-off conocido del modelo políglota** y está discutido en [../docs/justificacion-poliglota.md](../docs/justificacion-poliglota.md).
