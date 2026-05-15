@@ -3,6 +3,11 @@
 Sistema de Facturación con persistencia políglota.
 **1er cuatrimestre 2026.**
 
+[![validate](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml/badge.svg)](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Last commit](https://img.shields.io/github/last-commit/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO)](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/commits/main)
+
 ---
 
 ## Cátedra
