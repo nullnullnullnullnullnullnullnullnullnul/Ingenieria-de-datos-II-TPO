@@ -2,7 +2,7 @@
 
 Capa relacional del sistema de facturación. Almacena las entidades transaccionales: `producto`, `factura`, `detalle_factura`.
 
-> Los clientes y sus teléfonos en MongoDB. Ver [../nosql/README.md](../nosql/README.md).
+> Los clientes y sus teléfonos están en MongoDB. Ver [../nosql/README.md](../nosql/README.md).
 
 ## Cómo levantar PostgreSQL local
 
