@@ -60,24 +60,41 @@ La colección `cliente` necesita los siguientes índices:
 
 ## Cómo levantar MongoDB local
 
-> **Nota**: actualmente Mongo se levanta con `docker run` standalone. Cuando arranque la fase Mongo del proyecto, el servicio se moverá a `docker-compose.yml` (junto con Postgres) y este README se actualizará para usar `docker compose up -d mongo`.
+### Docker Compose
 
-### Docker
-
-```bash
-docker run -d \
-  --name tpo-mongo \
-  -p 27017:27017 \
-  mongo:8
-```
-
-Para entrar al cliente:
+Desde la raíz del repo, con `.env` ya copiado de `.env.example`:
 
 ```bash
-docker exec -it tpo-mongo mongosh "mongodb://localhost:27017/tpo_facturacion"
+docker compose up -d mongo
 ```
 
-### MongoDB Atlas
+El `docker-compose.yml` lee la configuración de `.env` (campos `MONGO_DATABASE`, `MONGO_PORT`). MongoDB local no requiere autenticación.
+
+Para entrar al cliente desde el host (requiere `mongosh` instalado):
+
+```bash
+mongosh "mongodb://localhost:27017/tpo_facturacion"
+```
+
+O desde adentro del contenedor (sin `mongosh` en el host):
+
+```bash
+docker compose exec mongo mongosh "mongodb://localhost:27017/tpo_facturacion"
+```
+
+Para apagar el servicio (mantiene los datos):
+
+```bash
+docker compose down
+```
+
+Para apagar y resetear (borra el volumen):
+
+```bash
+docker compose down -v
+```
+
+### MongoDB Atlas (alternativa cloud)
 
 1. Crear cluster M0 gratuito en [https://cloud.mongodb.com](https://cloud.mongodb.com).
 2. Obtener connection string del cluster.
