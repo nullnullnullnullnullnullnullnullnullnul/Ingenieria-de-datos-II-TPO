@@ -15,7 +15,7 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
   "nombre": "Jacob",
   "apellido": "Cooper",
   "direccion": "Av. Siempreviva 742",
-  "activo": true,
+  "activo": 1,
   "telefonos": [
     { "codigo_area": 11, "nro_telefono": 4567890, "tipo": "C" },
     { "codigo_area": 11, "nro_telefono": 1234567, "tipo": "F" }
@@ -32,11 +32,9 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
 | `nombre`      | STRING  | Sí                  | Nombre del cliente                                                                  |
 | `apellido`    | STRING  | Sí                  | Apellido del cliente                                                                |
 | `direccion`   | STRING  | Sí                  | Dirección                                                                           |
-| `activo`      | BOOLEAN | Sí (default `true`) | `true` si está activo; `false` para baja lógica                                     |
+| `activo`      | INT     | Sí (default `1`)    | Entero (matching `TINYINT` del DER).                                                |
 | `telefonos`   | ARRAY   | No (default `[]`)   | Array de subdocumentos de teléfono. Puede estar vacío.                              |
 
-
-**Nota sobre `activo`**: en el DER es `TINYINT` (0/1), idiomático en MySQL para representar booleanos. Acá lo mapeamos a `BOOLEAN` nativo de MongoDB (`true`/`false`) porque preserva la misma semántica (`activo = true`, baja = `false`) y es la representación natural en JSON/BSON. Mantener `0`/`1` en Mongo sería usar enteros donde existe un tipo dedicado, perdiendo claridad en queries (`{ activo: true }` vs `{ activo: 1 }`).
 
 ### Subdocumento `telefonos[]`
 
@@ -108,7 +106,7 @@ Todos los scripts son **idempotentes** (dropean lo que crean antes de recrearlo)
 | -------------------- | ----------------------------------------------------------------------- | ------ |
 | `01-setup.js`        | Crea la colección `cliente` con validador JSON Schema e índices         | TODO   |
 | `02-seed.js`         | Datos de prueba (clientes con sus teléfonos anidados)                   | TODO   |
-| `03-crud-cliente.js` | CRUD de clientes (requerimiento 13). Coordina baja lógica con `factura` | TODO   |
+| `03-crud-cliente.js` | CRUD de clientes (requerimiento 13). Coordina pre-check de integridad con `factura` antes de eliminar | TODO   |
 | `queries/`           | Una query por requerimiento (ver mapeo abajo)                           | TODO   |
 
 
@@ -127,7 +125,7 @@ Solo los requerimientos que toca este motor. Los cross-DB necesitan también su 
 | 6   | Clientes con cantidad de facturas       | `queries/req-06.js`  | Sí (SQL aporta `nro_cliente` y cantidad de facturas)                                           |
 | 7   | Facturas de "Kai Bullock"               | `queries/req-07.js`  | Sí (Mongo resuelve `nombre`+`apellido` a `nro_cliente`; SQL filtra las facturas)               |
 | 10  | Total gastado por cliente con IVA       | `queries/req-10.js`  | Sí (SQL aporta `nro_cliente` y total con IVA)                                                  |
-| 13  | CRUD de clientes                        | `03-crud-cliente.js` | No (baja lógica para preservar consistencia con SQL)                                           |
+| 13  | CRUD de clientes                        | `03-crud-cliente.js` | No (pre-check en SQL antes de eliminar para evitar facturas huérfanas)                         |
 
 
 Los requerimientos 8, 9, 11, 12 y 14 los resuelve PostgreSQL. Ver [../sql/README.md](../sql/README.md).
@@ -139,6 +137,7 @@ MongoDB no garantiza la consistencia de `nro_cliente` con la tabla `factura` de 
 La capa de aplicación se responsabiliza de:
 
 - Asignar `nro_cliente` único al crear un cliente (alineado con lo que PostgreSQL espera en `factura.nro_cliente`).
-- No eliminar físicamente un cliente que tiene facturas asociadas en PostgreSQL: marcarlo como `activo: false` (baja lógica). Implementado en `03-crud-cliente.js` (requerimiento 13).
+- **Pre-check de integridad antes de eliminar**: el CRUD del requerimiento 13 consulta `SELECT COUNT(*) FROM factura WHERE nro_cliente = :id` en PostgreSQL. Si el cliente tiene facturas asociadas, rechaza la operación con error. Solo se ejecuta `db.cliente.deleteOne({ nro_cliente: :id })` si el count es `0`. De esta forma nunca quedan referencias huérfanas en `factura`.
+
 
 Es un **trade-off conocido del modelo políglota** y está discutido en [../docs/justificacion-poliglota.md](../docs/justificacion-poliglota.md).
