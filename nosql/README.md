@@ -55,7 +55,7 @@ La colección `cliente` necesita los siguientes índices:
 | --------------------- | ------------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `uq_nro_cliente`      | `{ nro_cliente: 1 }`                                          | Sí            | Clave de búsqueda principal. La app accede al cliente por `nro_cliente` cuando agrega `nombre`, `apellido` a resultados de SQL (reqs 4, 5, 6, 7, 10) o cuando hace CRUD (req 13). |
 | `idx_nombre_apellido` | `{ nombre: 1, apellido: 1 }`                                  | No            | Búsqueda por nombre completo: req 2 ("Jacob Cooper") y req 7 ("Kai Bullock"). Sin este índice, esas queries hacen full collection scan.                         |
-| `uq_telefono`         | `{ "telefonos.codigo_area": 1, "telefonos.nro_telefono": 1 }` | Sí (multikey) | Replica la PK compuesta de `E01_TELEFONO` en el DER. Previene que el mismo número (par `codigo_area`+`nro_telefono`) esté registrado en dos clientes distintos. |
+| `uq_telefono`         | `{ "telefonos.codigo_area": 1, "telefonos.nro_telefono": 1 }` | Sí (multikey, parcial) | Replica la PK compuesta de `E01_TELEFONO` en el DER. Previene que el mismo número (par `codigo_area`+`nro_telefono`) esté registrado en dos clientes distintos. Usa `partialFilterExpression: { "telefonos.0": { $exists: true } }` para excluir del índice a los clientes con `telefonos: []`; sin el filtro parcial, dos clientes sin teléfonos colisionarían en la clave `(null, null)` del multikey y `unique: true` rechazaría el segundo insert. |
 
 
 ## Cómo levantar MongoDB local

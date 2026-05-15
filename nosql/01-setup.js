@@ -110,9 +110,22 @@ db.cliente.createIndex(
 // the DER. As a multikey unique index it prevents the same
 // (codigo_area, nro_telefono) pair from appearing inside two different
 // cliente documents.
+//
+// partialFilterExpression: clientes are allowed to have an empty
+// telefonos array (telefonos: []). Without a partial filter, every
+// such cliente would index as (null, null) in this compound multikey
+// index, and the unique constraint would reject the SECOND cliente
+// without telefonos with an E11000 duplicate-key error. The filter
+// restricts the index to documents that actually have at least one
+// telefono ("telefonos.0" exists), which is the canonical MongoDB
+// pattern for unique indexes over optional/nullable fields.
 db.cliente.createIndex(
     { "telefonos.codigo_area": 1, "telefonos.nro_telefono": 1 },
-    { unique: true, name: "uq_telefono" }
+    {
+        unique: true,
+        name: "uq_telefono",
+        partialFilterExpression: { "telefonos.0": { $exists: true } }
+    }
 );
 
 // === Confirmation output ===
