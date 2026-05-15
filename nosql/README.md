@@ -17,8 +17,8 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
   "direccion": "Av. Siempreviva 742",
   "activo": 1,
   "telefonos": [
-    { "codigo_area": 11, "nro_telefono": 4567890, "tipo": "C" },
-    { "codigo_area": 11, "nro_telefono": 1234567, "tipo": "F" }
+    { "codigo_area": 178, "nro_telefono": 4758526, "tipo": "M" },
+    { "codigo_area": 323, "nro_telefono": 4481471, "tipo": "F" }
   ]
 }
 ```
@@ -43,7 +43,7 @@ Un documento por cliente. Los teléfonos se anidan como array dentro del documen
 | -------------- | --------------- | -------- | ------------------------------------ |
 | `codigo_area`  | INT             | Sí       | Código de área (1 a 3 dígitos)       |
 | `nro_telefono` | INT             | Sí       | Número de teléfono (hasta 7 dígitos) |
-| `tipo`         | STRING (1 char) | Sí       | `'C'` celular, `'F'` fijo            |
+| `tipo`         | STRING (1 char) | Sí       | `'F'` fijo, `'M'` móvil              |
 
 
 ## Índices
