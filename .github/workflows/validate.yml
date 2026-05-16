@@ -94,8 +94,13 @@ jobs:
           MONGO_URI: "mongodb://localhost:27017/tpo_facturacion"
         run: |
           shopt -s nullglob
-          for f in nosql/*.js; do
+          for f in nosql/*.js nosql/queries/*.js; do
             echo "::group::Applying $f"
             mongosh "$MONGO_URI" --quiet --file "$f"
             echo "::endgroup::"
           done
+
+      - name: Verify expected state after seed
+        env:
+          MONGO_URI: "mongodb://localhost:27017/tpo_facturacion"
+        run: mongosh "$MONGO_URI" --quiet --file scripts/ci-verify-mongo.js
