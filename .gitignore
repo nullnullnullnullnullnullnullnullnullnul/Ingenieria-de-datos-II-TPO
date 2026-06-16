@@ -43,3 +43,4 @@ data/local/
 
 # Personal files (never to be committed)
 TRABAJO_PRACTICO_OBLIGATORIO_2026.pdf
+node_modules

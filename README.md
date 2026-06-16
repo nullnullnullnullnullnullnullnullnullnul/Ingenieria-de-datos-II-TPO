@@ -3,10 +3,10 @@
 Sistema de Facturación con persistencia políglota.
 **1er cuatrimestre 2026.**
 
-[![validate](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml/badge.svg)](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml)
+[![validate](https://github.com/netqo/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml/badge.svg)](https://github.com/netqo/Ingenieria-de-datos-II-TPO/actions/workflows/validate.yml)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Last commit](https://img.shields.io/github/last-commit/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO)](https://github.com/nullnullnullnullnullnullnullnullnullnul/Ingenieria-de-datos-II-TPO/commits/main)
+[![Last commit](https://img.shields.io/github/last-commit/netqo/Ingenieria-de-datos-II-TPO)](https://github.com/netqo/Ingenieria-de-datos-II-TPO/commits/main)
 
 ---
 
@@ -39,25 +39,31 @@ El vínculo entre motores es `nro_cliente` (entero): `factura.nro_cliente` en Po
 
 Detalle de la decisión de diseño: [docs/justificacion-poliglota.md](docs/justificacion-poliglota.md).
 
+### Capa de aplicación: API REST
+
+Sobre los dos motores hay una API REST (**NestJS + Fastify**, en [`api/`](api/)) que orquesta las consultas cross-DB y expone cada requerimiento como un endpoint. La documentación interactiva (**Swagger UI**) se sirve en `/docs` y cumple el rol de frontend para demostrar los requerimientos. Las queries SQL siguen viviendo en `sql/` y las pipelines de Mongo en `nosql/`: la API las orquesta, no las reemplaza.
+
 ---
 
 ## Estructura del repositorio
 
 ```
 .
-├── .github/                # Templates de PR y workflows de CI
-├── docs/                   # Documentación de diseño, DER y enunciado
-│   ├── DER.png
-│   ├── TPO.md
-│   └── justificacion-poliglota.md
-├── sql/                    # Scripts SQL (DDL, DML, queries, vistas, CRUD)
-├── nosql/                  # Scripts NoSQL (setup, seed, queries, CRUD)
-├── .env.example
-├── .gitattributes
-├── .gitignore
-├── .sqlfluff
-├── docker-compose.yml
-└── README.md
+|-- .github/                # Templates de PR y workflows de CI
+|-- api/                    # API REST (NestJS + Fastify) sobre los dos motores, con Swagger UI
+|-- docs/                   # Documentación de diseño, DER y enunciado
+|   |-- DER.png
+|   |-- TPO.md
+|   `-- justificacion-poliglota.md
+|-- sql/                    # Scripts SQL (DDL, DML, queries, vistas)
+|-- nosql/                  # Scripts NoSQL (setup, seed, queries, CRUD)
+|-- scripts/                # Scripts de CI (verificación del estado de Mongo)
+|-- .env.example
+|-- .gitattributes
+|-- .gitignore
+|-- .sqlfluff
+|-- docker-compose.yml      # postgres + mongo + api
+`-- README.md
 ```
 
 ## Requisitos previos
@@ -76,11 +82,15 @@ Copiar el template de variables de entorno:
 cp .env.example .env
 ```
 
-Levantar el stack con Docker Compose:
+Levantar el stack con Docker Compose (PostgreSQL + MongoDB + la API):
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
+
+La primera vez buildea la imagen de la API. Una vez arriba, la documentación interactiva queda en **http://localhost:3000/docs**.
+
+> Para levantar solo las bases (sin la API): `docker compose up -d postgres mongo`.
 
 Detalle por motor: [sql/README.md](sql/README.md) y [nosql/README.md](nosql/README.md).
 
@@ -94,8 +104,8 @@ psql -h localhost -U tpo -d tpo_facturacion -f sql/01-schema.sql
 psql -h localhost -U tpo -d tpo_facturacion -f sql/02-seed.sql
 
 # MongoDB
-mongosh "mongodb://localhost:27017/tpo_facturacion" --file nosql/01-setup.js
-mongosh "mongodb://localhost:27017/tpo_facturacion" --file nosql/02-seed.js
+bun run nosql/01-setup.ts
+bun run nosql/02-seed.ts
 ```
 
 ## Cómo ejecutar los requerimientos

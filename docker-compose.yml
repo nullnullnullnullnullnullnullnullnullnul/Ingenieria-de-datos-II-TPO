@@ -35,6 +35,33 @@ services:
       retries: 5
       start_period: 15s
 
+  api:
+    build:
+      # Context is the repo root so the image can include the sql/ query files.
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: tpo-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    environment:
+      # Inside the compose network the databases are reached by service name on
+      # their container ports (not the host-mapped ports).
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_USER: ${PG_USER:-tpo}
+      PG_PASSWORD: ${PG_PASSWORD:-tpo}
+      PG_DATABASE: ${PG_DATABASE:-tpo_facturacion}
+      MONGO_HOST: mongo
+      MONGO_PORT: "27017"
+      MONGO_DATABASE: ${MONGO_DATABASE:-tpo_facturacion}
+      API_PORT: "3000"
+    ports:
+      - "${API_PORT:-3000}:3000"
+
 volumes:
   postgres_data:
   mongo_data:

@@ -109,9 +109,9 @@ mongosh "<connection_string>/tpo_facturacion"
 En orden, desde esta carpeta:
 
 ```bash
-mongosh "mongodb://localhost:27017/tpo_facturacion" --file 01-setup.js
-mongosh "mongodb://localhost:27017/tpo_facturacion" --file 02-seed.js
-mongosh "mongodb://localhost:27017/tpo_facturacion" --file 03-crud-cliente.js
+bun run 01-setup.ts
+bun run 02-seed.ts
+bun run 03-crud-cliente.ts
 ```
 
 Todos los scripts son **idempotentes** (dropean lo que crean antes de recrearlo).
@@ -121,10 +121,10 @@ Todos los scripts son **idempotentes** (dropean lo que crean antes de recrearlo)
 
 | Archivo              | Descripción                                                             | Estado |
 | -------------------- | ----------------------------------------------------------------------- | ------ |
-| `01-setup.js`        | Crea la colección `cliente` con validador JSON Schema e índices         | TODO   |
-| `02-seed.js`         | Datos de prueba (clientes con sus teléfonos anidados)                   | TODO   |
-| `03-crud-cliente.js` | CRUD de clientes (requerimiento 13). Coordina pre-check de integridad con `factura` antes de eliminar | TODO   |
-| `queries/`           | Una query por requerimiento (ver mapeo abajo)                           | TODO   |
+| `01-setup.ts`        | Crea la colección `cliente` con validador JSON Schema e índices         | DONE   |
+| `02-seed.ts`         | Datos de prueba (clientes con sus teléfonos anidados)                   | DONE   |
+| `03-crud-cliente.ts` | CRUD de clientes (requerimiento 13). Coordina pre-check de integridad con `factura` antes de eliminar | DONE   |
+| `queries/`           | Una query por requerimiento (ver mapeo abajo)                           | DONE   |
 
 
 ## Mapeo de requerimientos a archivos Mongo
@@ -134,15 +134,15 @@ Solo los requerimientos que toca este motor. Los cross-DB necesitan también su 
 
 | #   | Requerimiento                           | Archivo              | Cross-DB                                                                                       |
 | --- | --------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
-| 1   | Datos de los clientes con sus teléfonos | `queries/req-01.js`  | No                                                                                             |
-| 2   | Teléfonos de "Jacob Cooper"             | `queries/req-02.js`  | No                                                                                             |
-| 3   | Cada teléfono con datos del cliente     | `queries/req-03.js`  | No                                                                                             |
-| 4   | Clientes con al menos una factura       | `queries/req-04.js`  | Sí (SQL aporta los `nro_cliente` que aparecen en `factura`)                                    |
-| 5   | Clientes sin facturas                   | `queries/req-05.js`  | Sí (SQL aporta los `nro_cliente` que aparecen en `factura`; Mongo los filtra del set completo) |
-| 6   | Clientes con cantidad de facturas       | `queries/req-06.js`  | Sí (SQL aporta `nro_cliente` y cantidad de facturas)                                           |
-| 7   | Facturas de "Kai Bullock"               | `queries/req-07.js`  | Sí (Mongo resuelve `nombre`+`apellido` a `nro_cliente`; SQL filtra las facturas)               |
-| 10  | Total gastado por cliente con IVA       | `queries/req-10.js`  | Sí (SQL aporta `nro_cliente` y total con IVA)                                                  |
-| 13  | CRUD de clientes                        | `03-crud-cliente.js` | No (pre-check en SQL antes de eliminar para evitar facturas huérfanas)                         |
+| 1   | Datos de los clientes con sus teléfonos | `queries/req-01.ts`  | No                                                                                             |
+| 2   | Teléfonos de "Jacob Cooper"             | `queries/req-02.ts`  | No                                                                                             |
+| 3   | Cada teléfono con datos del cliente     | `queries/req-03.ts`  | No                                                                                             |
+| 4   | Clientes con al menos una factura       | `queries/req-04.ts`  | Sí (SQL aporta los `nro_cliente` que aparecen en `factura`)                                    |
+| 5   | Clientes sin facturas                   | `queries/req-05.ts`  | Sí (SQL aporta los `nro_cliente` que aparecen en `factura`; Mongo los filtra del set completo) |
+| 6   | Clientes con cantidad de facturas       | `queries/req-06.ts`  | Sí (SQL aporta `nro_cliente` y cantidad de facturas)                                           |
+| 7   | Facturas de "Kai Bullock"               | `queries/req-07.ts`  | Sí (Mongo resuelve `nombre`+`apellido` a `nro_cliente`; SQL filtra las facturas)               |
+| 10  | Total gastado por cliente con IVA       | `queries/req-10.ts`  | Sí (SQL aporta `nro_cliente` y total con IVA)                                                  |
+| 13  | CRUD de clientes                        | `03-crud-cliente.ts` | No (pre-check en SQL antes de eliminar para evitar facturas huérfanas)                         |
 
 
 Los requerimientos 8, 9, 11, 12 y 14 los resuelve PostgreSQL. Ver [../sql/README.md](../sql/README.md).
