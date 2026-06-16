@@ -1,0 +1,14 @@
+# Build context is the repo root (see docker-compose.yml). Keep it lean and
+# never ship installed deps, build output, secrets or local tooling state.
+**/node_modules
+**/dist
+**/coverage
+.git
+.github
+docs
+nosql
+scripts
+*.pdf
+*.log
+.env
+**/.env

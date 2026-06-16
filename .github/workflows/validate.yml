@@ -29,8 +29,29 @@ jobs:
       - name: Lint
         run: sqlfluff lint sql/
 
-  apply-schema:
-    name: Apply schema and seeds against Postgres 17
+  build-api:
+    name: Build and test API (NestJS)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Unit tests
+        run: bun run test
+
+  integration-test:
+    name: Integration Test (Postgres + MongoDB)
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -46,13 +67,29 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 15s
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
 
       - name: Install psql client
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: bun install
 
       - name: Apply SQL files in order
         env:
@@ -69,38 +106,32 @@ jobs:
             echo "::endgroup::"
           done
 
-  apply-mongo-setup:
-    name: Apply setup and seeds against MongoDB 8
-    runs-on: ubuntu-24.04
-    services:
-      mongo:
-        image: mongo:8
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --health-start-period 15s
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install mongosh
-        run: sudo npm install -g mongosh
-
-      - name: Apply Mongo files in order
+      - name: Apply Mongo scripts in order
         env:
-          MONGO_URI: "mongodb://localhost:27017/tpo_facturacion"
+          MONGO_HOST: localhost
+          MONGO_PORT: "27017"
+          MONGO_DATABASE: tpo_facturacion
+          PGPASSWORD: tpo
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: tpo
+          PGDATABASE: tpo_facturacion
         run: |
           shopt -s nullglob
-          for f in nosql/*.js nosql/queries/*.js; do
+          for f in nosql/*.ts nosql/queries/*.ts; do
             echo "::group::Applying $f"
-            mongosh "$MONGO_URI" --quiet --file "$f"
+            bun run "$f"
             echo "::endgroup::"
           done
 
       - name: Verify expected state after seed
         env:
-          MONGO_URI: "mongodb://localhost:27017/tpo_facturacion"
-        run: mongosh "$MONGO_URI" --quiet --file scripts/ci-verify-mongo.js
+          MONGO_HOST: localhost
+          MONGO_PORT: "27017"
+          MONGO_DATABASE: tpo_facturacion
+          PGPASSWORD: tpo
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: tpo
+          PGDATABASE: tpo_facturacion
+        run: bun run scripts/ci-verify-mongo.ts
