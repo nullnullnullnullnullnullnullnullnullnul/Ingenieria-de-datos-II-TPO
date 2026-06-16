@@ -1,4 +1,4 @@
-# Ingeniería de Datos II – Cursada 1er cuatrimestre 2026
+# Ingeniería de Datos II - Cursada 1er cuatrimestre 2026
 
 *Trabajo Práctico Obligatorio*
 
