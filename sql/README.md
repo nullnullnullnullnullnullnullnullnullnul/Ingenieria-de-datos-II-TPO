@@ -63,7 +63,6 @@ psql -h localhost -U tpo -d tpo_facturacion -f 01-schema.sql
 psql -h localhost -U tpo -d tpo_facturacion -f 02-seed.sql
 psql -h localhost -U tpo -d tpo_facturacion -f 03-view-facturas-fecha.sql
 psql -h localhost -U tpo -d tpo_facturacion -f 04-view-productos-no-facturados.sql
-psql -h localhost -U tpo -d tpo_facturacion -f 05-crud-producto.sql
 ```
 
 Para ejecutar una query de requerimiento individual:
@@ -82,9 +81,8 @@ Todos los scripts son **idempotentes**: se pueden re-ejecutar sin error.
 | `01-schema.sql`                       | DDL: tablas `producto`, `factura`, `detalle_factura`, FKs, checks, índices. `factura.total_con_iva` es columna generada (ver comentario en el archivo y en `docs/justificacion-poliglota.md`) | DONE   |
 | `02-seed.sql`                         | Datos de prueba (productos, facturas, detalles)                            | DONE   |
 | `03-view-facturas-fecha.sql`          | Vista del requerimiento 11 (facturas ordenadas por fecha)                  | DONE   |
-| `04-view-productos-no-facturados.sql` | Vista del requerimiento 12 (productos no facturados)                       | TODO   |
-| `05-crud-producto.sql`                | CRUD de productos (requerimiento 14)                                       | TODO   |
-| `queries/`                            | Una query por requerimiento (ver mapeo abajo)                              | TODO   |
+| `04-view-productos-no-facturados.sql` | Vista del requerimiento 12 (productos no facturados)                       | DONE   |
+| `queries/`                            | Una query por requerimiento (ver mapeo abajo)                              | DONE   |
 
 
 ## Mapeo de requerimientos a archivos SQL
@@ -103,7 +101,7 @@ Solo los requerimientos que toca este motor. Los cross-DB necesitan también su 
 | 10  | Total gastado por cliente con IVA     | `queries/req-10.sql`                  | Sí (Mongo agrega `nombre`, `apellido`)                              |
 | 11  | Vista de facturas ordenadas por fecha | `03-view-facturas-fecha.sql`          | No                                         |
 | 12  | Vista de productos no facturados      | `04-view-productos-no-facturados.sql` | No                                         |
-| 14  | CRUD de productos                     | `05-crud-producto.sql`                | No                                         |
+| 14  | CRUD de productos                     | API REST (`api/`, sobre `producto`)   | No                                         |
 
 
 Los requerimientos 1, 2, 3 y 13 los resuelve Mongo. Ver [../nosql/README.md](../nosql/README.md).
