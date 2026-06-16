@@ -12,7 +12,7 @@ Documento donde se argumenta la elección y distribución de motores para el TPO
 
 | Entidad / Datos             | Motor      | Justificación                                                                                                                                |
 | --------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `producto`                  | PostgreSQL | El stock se decrementa atómicamente al facturar. Necesita ACID y constraints (precio > 0, stock ≥ 0).                                        |
+| `producto`                  | PostgreSQL | El stock se decrementa atómicamente al facturar. Necesita ACID y constraints (precio > 0, stock >= 0).                                        |
 | `factura`                   | PostgreSQL | Cabecera contable: `total_sin_iva`, `iva` (tasa en porcentaje, ej. `21`), `total_con_iva` (columna **generada** como `total_sin_iva * (1 + iva / 100)`, ver seccion siguiente), fecha. Su emision es transaccional: insertar cabecera + detalle + decrementar stock en un solo paso. |
 | `detalle_factura`           | PostgreSQL | Líneas de factura. Relación N:N entre factura y producto, modelo relacional natural con FKs.                                                 |
 | `cliente` (con `telefonos`) | MongoDB    | Documento por cliente con sus teléfonos anidados como array. 1:N de baja cardinalidad, siempre consultados juntos, no transaccional.         |
@@ -73,4 +73,4 @@ Frente a la alternativa de almacenar `telefono` como una colección separada con
 | 11  | Vista de facturas ordenadas por fecha   | PostgreSQL           | `CREATE VIEW` sobre `factura`                                                        |
 | 12  | Vista de productos no facturados        | PostgreSQL           | `LEFT JOIN` / `NOT EXISTS`                                                           |
 | 13  | CRUD de clientes                        | MongoDB              | Cliente vive solo en MongoDB; pre-check en SQL antes de eliminar (rechaza si tiene facturas) |
-| 14  | CRUD de productos                       | PostgreSQL           | Precio sin IVA, validación de stock ≥ 0                                              |
+| 14  | CRUD de productos                       | PostgreSQL           | Precio sin IVA, validación de stock >= 0                                              |
